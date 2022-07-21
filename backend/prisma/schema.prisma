@@ -12,7 +12,7 @@ datasource db {
 
 // Persones i Usuaris
 model Persona {
-  id      Int     @id @default(autoincrement())
+  id      String  @id @default(cuid())
   email   String  @unique
   nom     String
   cognoms String
@@ -34,7 +34,7 @@ model User {
   username String @unique
 
   persona   Persona   @relation(fields: [personaId], references: [id])
-  personaId Int       @unique @map("persona_id")
+  personaId String    @unique @map("persona_id")
   Torneig   Torneig[]
 
   createdAt DateTime @default(now())
@@ -45,7 +45,7 @@ model User {
 
 // Tornejos
 model Torneig {
-  id               Int    @id @default(autoincrement())
+  id               String    @id @default(cuid())
   nom              String
   descripcio       String
   socials          Json?
@@ -85,7 +85,7 @@ model Escut {
   grupMissatgeria String @map("grup_missatgeria")
 
   torneig                 Torneig                   @relation(fields: [torneigId], references: [id])
-  torneigId               Int                       @map("torneig_id")
+  torneigId               String                       @map("torneig_id")
   MembresEscut            MembresEscut[]
   EscutCombats            EscutCombats[]
   EscutParticipantsCombat EscutParticipantsCombat[]
@@ -100,11 +100,11 @@ model MembresEscut {
   escut     Escut   @relation(fields: [escutId], references: [id])
   escutId   Int     @map("escut_id")
   persona   Persona @relation(fields: [personaId], references: [id])
-  personaId Int     @map("persona_id")
+  personaId String  @map("persona_id")
 
   confirmacio      Boolean @default(false)
   tokenConfirmacio String? @map("token_confirmacio") // Used if the person has to confirm by email
-  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -119,7 +119,7 @@ model Combat {
   horaFinal DateTime? @map("hora_final")
 
   torneig        Torneig        @relation(fields: [torneigId], references: [id])
-  torneigId      Int            @map("torneig_id")
+  torneigId      String            @map("torneig_id")
   localitzacio   Localitzacio   @relation(fields: [localitzacioId], references: [id])
   localitzacioId Int            @map("localitzacio_id")
   EscutCombats   EscutCombats[]
@@ -151,7 +151,7 @@ model EscutParticipantsCombat {
   combatId    Int          @map("combat_id")
   escutId     Int          @map("escut_id")
   persona     Persona      @relation(fields: [personaId], references: [id])
-  personaId   Int          @map("persona_id")
+  personaId   String       @map("persona_id")
 
   confirmacio Boolean @default(false)
   Escut       Escut   @relation(fields: [escutId], references: [id])
