@@ -1,5 +1,5 @@
 # development notes and log
-dev/
+dev
 
 node_modules
 # Keep environment variables out of version control
