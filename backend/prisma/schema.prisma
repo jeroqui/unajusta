@@ -1,0 +1,193 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Persones i Usuaris
+model Persona {
+  id      Int     @id @default(autoincrement())
+  email   String  @unique
+  nom     String
+  cognoms String
+  active  Boolean @default(true) // false if person was invited by email and said it was fraudulent (or some time passed without response)
+  persist Boolean @default(false) // true after the user has confirmed succesfully one time (we understand that the following times he is still interested in the app, but didn't bother to confirm in a particular competition)
+
+  user                    User?
+  MembresEscut            MembresEscut[]
+  EscutParticipantsCombat EscutParticipantsCombat[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("persones")
+}
+
+model User {
+  id       Int    @id @default(autoincrement())
+  username String @unique
+
+  persona   Persona   @relation(fields: [personaId], references: [id])
+  personaId Int       @unique @map("persona_id")
+  Torneig   Torneig[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+// Tornejos
+model Torneig {
+  id               Int    @id @default(autoincrement())
+  nom              String
+  descripcio       String
+  socials          Json?
+  grupsMinPersones Int    @map("grups_min_persones")
+  grupsMaxPersones Int    @map("grups_max_persones")
+  places           Int
+  quota            Float
+
+  creador   User @relation(fields: [creadorId], references: [id])
+  creadorId Int  @map("creador_id")
+
+  esport   Esport   @relation(fields: [esportId], references: [id])
+  esportId Int      @map("esport_id")
+  Escut    Escut[]
+  Combat   Combat[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("torneigs")
+}
+
+model Esport {
+  id      Int       @id @default(autoincrement())
+  nom     String
+  Torneig Torneig[]
+
+  createdAt DateTime @default(now())
+
+  @@map("esports")
+}
+
+// Escuts
+model Escut {
+  id              Int    @id @default(autoincrement())
+  nom             String
+  grupMissatgeria String @map("grup_missatgeria")
+
+  torneig                 Torneig                   @relation(fields: [torneigId], references: [id])
+  torneigId               Int                       @map("torneig_id")
+  MembresEscut            MembresEscut[]
+  EscutCombats            EscutCombats[]
+  EscutParticipantsCombat EscutParticipantsCombat[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("escuts")
+}
+
+model MembresEscut {
+  escut     Escut   @relation(fields: [escutId], references: [id])
+  escutId   Int     @map("escut_id")
+  persona   Persona @relation(fields: [personaId], references: [id])
+  personaId Int     @map("persona_id")
+
+  confirmacio      Boolean @default(false)
+  tokenConfirmacio String? @map("token_confirmacio") // Used if the person has to confirm by email
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@id([escutId, personaId])
+}
+
+// Combats
+model Combat {
+  id        Int       @id @default(autoincrement())
+  nom       String?
+  horaInici DateTime  @map("hora_inici")
+  horaFinal DateTime? @map("hora_final")
+
+  torneig        Torneig        @relation(fields: [torneigId], references: [id])
+  torneigId      Int            @map("torneig_id")
+  localitzacio   Localitzacio   @relation(fields: [localitzacioId], references: [id])
+  localitzacioId Int            @map("localitzacio_id")
+  EscutCombats   EscutCombats[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("combats")
+}
+
+model EscutCombats {
+  combat   Combat @relation(fields: [combatId], references: [id])
+  combatId Int    @map("combat_id")
+  escut    Escut  @relation(fields: [escutId], references: [id])
+  escutId  Int    @map("escut_id")
+
+  puntuacio               Int
+  EscutParticipantsCombat EscutParticipantsCombat[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@id([combatId, escutId])
+  @@map("escut_combats")
+}
+
+model EscutParticipantsCombat {
+  escutCombat EscutCombats @relation(fields: [combatId, escutId], references: [combatId, escutId])
+  combatId    Int          @map("combat_id")
+  escutId     Int          @map("escut_id")
+  persona     Persona      @relation(fields: [personaId], references: [id])
+  personaId   Int          @map("persona_id")
+
+  confirmacio Boolean @default(false)
+  Escut       Escut   @relation(fields: [escutId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@id([combatId, escutId, personaId])
+}
+
+// Localitzacio
+model Localitzacio {
+  id                  Int     @id @default(autoincrement())
+  nom                 String  @unique
+  regio               String?
+  poblacio            String
+  adreca              String
+  codiPostal          String
+  coordenadesLongitud Float?  @map("coordenades_longitud")
+  coordenadesLatitud  Float?  @map("coordenades_latitud")
+
+  pais   Pais     @relation(fields: [paisId], references: [id])
+  paisId String   @map("pais_id")
+  Combat Combat[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("localitzacions")
+}
+
+model Pais {
+  id           String         @id
+  Localitzacio Localitzacio[]
+
+  createdAt DateTime @default(now())
+
+  @@map("paisos")
+}
