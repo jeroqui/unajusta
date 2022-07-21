@@ -3,31 +3,17 @@ import dotenv from 'dotenv';
 import express from 'express';
 import { ApolloServer, gql } from 'apollo-server-express';
 
+import {schema} from './schema';
 
 dotenv.config();
 
-
-const typeDefs = gql`
-    type Query {
-        hello: String
-    }
-`;
-
-const resolvers = {
-    Query: {
-        hello: () => {
-            return 'Hello World'
-        }
-    }
-};
 
 
 async function startServer() {
     const app = express();
     
     const apolloServer = new ApolloServer({
-        typeDefs,
-        resolvers
+        schema
     });
 
     await apolloServer.start();
