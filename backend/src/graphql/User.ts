@@ -1,4 +1,4 @@
-import { extendType, objectType } from 'nexus'
+import { objectType, extendType } from 'nexus'
 
 export const Post = objectType({
 
@@ -18,17 +18,24 @@ export const Post = objectType({
 
 })
 
-
 export const PostQuery = extendType({
+
   type: 'Query',
+
   definition(t) {
+
     t.nonNull.list.field('drafts', {
+
       type: 'Post',
+
       resolve() {
+
         return [{ id: 1, title: 'Nexus', body: '...', published: false }]
+
       },
+
     })
+
   },
+
 })
-
-
