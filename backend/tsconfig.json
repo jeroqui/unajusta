@@ -1,5 +1,4 @@
 {
-
   "compilerOptions": {
 
     "target": "ES2018",
@@ -19,5 +18,4 @@
     "esModuleInterop": true
 
   }
-
 }

@@ -1,6 +1,4 @@
-import { extendType } from 'nexus'
-
-import { objectType } from 'nexus'
+import { extendType, objectType } from 'nexus'
 
 export const Post = objectType({
 
@@ -9,10 +7,15 @@ export const Post = objectType({
   definition(t) {
 
     t.int('id')            // <- Field named `id` of type `Int`
+
     t.string('title')      // <- Field named `title` of type `String`
+
     t.string('body')       // <- Field named `body` of type `String`
+
     t.boolean('published') // <- Field named `published` of type `Boolean`
+
   },
+
 })
 
 
