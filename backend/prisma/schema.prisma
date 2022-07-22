@@ -36,6 +36,8 @@ model Persona {
 model User {
   id       Int    @id @default(autoincrement())
   username String @unique
+  /// @TypeGraphQL.omit(output: true)
+  password String
 
   persona   Persona   @relation(fields: [personaId], references: [id])
   personaId String    @unique @map("persona_id")
