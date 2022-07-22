@@ -1,19 +1,28 @@
 import dotenv from 'dotenv';
 
-import express from 'express';
-import { ApolloServer, gql } from 'apollo-server-express';
+import "reflect-metadata";
 
-import {schema} from './schema';
+import express from 'express';
+import { ApolloServer } from 'apollo-server-express';
+import { buildSchema } from 'type-graphql';
+
+import { resolvers } from "@generated/type-graphql";
+import { PrismaClient } from '@prisma/client';
 
 dotenv.config();
 
 
-
 async function startServer() {
     const app = express();
+
+    const prisma = new PrismaClient();
     
     const apolloServer = new ApolloServer({
-        schema
+        schema: await buildSchema({
+            resolvers,
+            validate: false,
+        }),
+        context: () => ({ prisma }),
     });
 
     await apolloServer.start();
