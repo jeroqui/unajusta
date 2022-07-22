@@ -9,6 +9,8 @@ import { buildSchema } from 'type-graphql';
 import { resolvers } from "@generated/type-graphql";
 import { PrismaClient } from '@prisma/client';
 
+import { CustomUserResolver } from './resolvers/Users';
+
 dotenv.config();
 
 
@@ -19,18 +21,19 @@ async function startServer() {
     
     const apolloServer = new ApolloServer({
         schema: await buildSchema({
-            resolvers,
+            resolvers: [CustomUserResolver, ...resolvers],
             validate: false,
         }),
         context: () => ({ prisma }),
     });
 
     await apolloServer.start();
+    
+    // app.use
+    app.use(express.json());
 
     apolloServer.applyMiddleware({app});
 
-    // app.use
-    app.use(express.json());
     
     // Load routes
     app.get('/', (req, res) => {

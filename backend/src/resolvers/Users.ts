@@ -1,13 +1,32 @@
-import { Resolver, Mutation, Arg } from 'type-graphql';
+import * as bcrypt from "bcrypt";
+import { Resolver, Mutation, Arg, Ctx } from 'type-graphql';
 
-import {User} from '../types/User'
+import {User} from '../../node_modules/@generated/type-graphql/models/User'
 
 @Resolver(User)
-export class UserResolver {
+export class CustomUserResolver {
     @Mutation(() => User)
     async registerUser(
-        @Arg("username") username: string
+        @Ctx() ctx: any,
+        @Arg("username") username: string,
+        @Arg("password") password: string,
+        @Arg("email") email: string,
+        @Arg("nom") nom: string,
+        @Arg("cognoms") cognoms: string
     ) {
-        return 
+        const hashedPassword = await bcrypt.hash(password, 10);
+        return ctx.prisma.user.create({
+            data: {
+                username: username,
+                password: hashedPassword,
+                persona: {
+                    create: {
+                        email,
+                        nom,
+                        cognoms
+                    }
+                }
+            },
+        });
     }
 }
