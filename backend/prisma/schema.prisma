@@ -34,10 +34,11 @@ model Persona {
 }
 
 model User {
-  id       Int    @id @default(autoincrement())
-  username String @unique
+  id         Int    @id @default(autoincrement())
+  username   String @unique
   /// @TypeGraphQL.omit(output: true)
-  password String
+  password   String
+  tokenCount Int    @default(0)
 
   persona   Persona   @relation(fields: [personaId], references: [id])
   personaId String    @unique @map("persona_id")
@@ -51,7 +52,7 @@ model User {
 
 // Tornejos
 model Torneig {
-  id               String    @id @default(cuid())
+  id               String @id @default(cuid())
   nom              String
   descripcio       String
   socials          Json?
@@ -91,7 +92,7 @@ model Escut {
   grupMissatgeria String @map("grup_missatgeria")
 
   torneig                 Torneig                   @relation(fields: [torneigId], references: [id])
-  torneigId               String                       @map("torneig_id")
+  torneigId               String                    @map("torneig_id")
   MembresEscut            MembresEscut[]
   EscutCombats            EscutCombats[]
   EscutParticipantsCombat EscutParticipantsCombat[]
@@ -125,7 +126,7 @@ model Combat {
   horaFinal DateTime? @map("hora_final")
 
   torneig        Torneig        @relation(fields: [torneigId], references: [id])
-  torneigId      String            @map("torneig_id")
+  torneigId      String         @map("torneig_id")
   localitzacio   Localitzacio   @relation(fields: [localitzacioId], references: [id])
   localitzacioId Int            @map("localitzacio_id")
   EscutCombats   EscutCombats[]
